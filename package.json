@@ -1,0 +1,22 @@
+{
+  "name": "crypto-portfolio",
+  "version": "1.0.0",
+  "description": "TBD",
+  "main": "index.js",
+  "bin": {
+    "cryptop": "index.js"
+  },
+  "scripts": {
+    "sample": "node index.js balance BTC --pretty",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Duong Viet Anh <dva912@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^9.1.0"
+  },
+  "devDependencies": {
+    "dotenv": "^16.0.0"
+  }
+}
