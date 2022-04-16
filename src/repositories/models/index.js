@@ -1,0 +1,1 @@
+exports.CsvPortfolioModel = require('./csv-portfolio.model')

@@ -4,7 +4,7 @@
   "description": "TBD",
   "main": "index.js",
   "bin": {
-    "cryptop": "index.js"
+    "cryptop": "./index.js"
   },
   "scripts": {
     "sample": "node index.js balance BTC --pretty",
@@ -14,7 +14,11 @@
   "author": "Duong Viet Anh <dva912@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "commander": "^9.1.0"
+    "bluebird": "^3.7.2",
+    "commander": "^9.1.0",
+    "readline": "^1.3.0",
+    "sequelize": "^6.19.0",
+    "sqlite3": "^5.0.3"
   },
   "devDependencies": {
     "dotenv": "^16.0.0"
