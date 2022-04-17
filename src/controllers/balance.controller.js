@@ -1,10 +1,12 @@
-module.exports = (symbol, options) => {
-    const data = {
-        symbol,
-        balance: 0
-    }
-    if (options.pretty) {
-        return console.log(data);
-    }
-    console.log(JSON.stringify(data))
+const Actions = require('../actions')
+const path = require('path')
+
+module.exports = async(symbol, options) => {
+    console.log(symbol, options)
+
+    const fpath = path.resolve(__dirname, '../../../../../Downloads/transactions.csv')
+    //const data = await Actions.CsvPortfolioAction.getPortfolioLatest(fpath)
+    const data = await Actions.CsvPortfolioAction.getPortfolioOnDate(fpath, 1000)
+
+    console.log({data})
 }

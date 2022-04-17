@@ -3,10 +3,23 @@ const { DataTypes } = require("sequelize");
 
 module.exports = (sequelize) => {
     const CsvPortfolio = sequelize.define('CsvPortfolio', {
-        firstName: DataTypes.STRING,
-        lastName: DataTypes.STRING,
-        phone: DataTypes.STRING,
-        email: DataTypes.STRING
+        id: {
+            type: DataTypes.BIGINT, 
+            primaryKey: true,
+            autoIncrement: true 
+        },
+        date: { 
+            type: DataTypes.INTEGER, 
+            allowNull: false 
+        },
+        token: { 
+            type: DataTypes.STRING, 
+            allowNull: false 
+        },
+        balance: { 
+            type: DataTypes.FLOAT, 
+            allowNull: false 
+        }
     }, {
         indexes: [{ unique: true, fields: ['id'] }]
     });

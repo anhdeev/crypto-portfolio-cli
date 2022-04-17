@@ -11,11 +11,6 @@ class Repository {
             {
                 host: "0.0.0.0",
                 dialect: process.env.DB_TYPE||'sqlite',
-                pool: {
-                    max: 5,
-                    min: 0,
-                    idle: 10000
-                },
                 storage: process.env.DB_PATH || '/tmp/portfolio-db.sqlite',
                 logging: false
             }
@@ -27,7 +22,7 @@ class Repository {
     connect = async() => {
         try {
             await this.db.authenticate();
-            //await this.db.sync({ force: true });
+            await this.db.sync(); // sync schema at startup
             console.log('Connection has been established successfully.');
         } catch (error) {
             console.error('Unable to connect to the database:', error);

@@ -1,4 +1,4 @@
-const balance = require("./controllers/balance.controller.js")
+const Controllers = require("./controllers")
 const CliService = require("./services/cli")
 const Repository = require("./repositories")
 
@@ -23,7 +23,7 @@ setTimeout(async() => {
             desc: 'Pretty print json output'
         }],
         desc: 'Get the balance for a specified token',
-        handler: balance
+        handler: Controllers.balanceControllers
     })
     
     CliService.parse(process.argv)
