@@ -13,3 +13,15 @@ exports.convertMilisecondToDate = (timeInMs) => {
     timeInMs = Number(timeInMs)
     return parseInt(timeInMs / CONSTANTS.MathConst.TIME.MILISECONDS_PER_DAY)
 }
+
+exports.diffArray = (a1, a2) => {
+    const result = [];
+
+    for (let i = 0; i < a1.length; i++) {
+      if (a2.indexOf(a1[i]) === -1) {
+        result.push(a1[i]);
+      }
+    }
+
+    return result;
+}

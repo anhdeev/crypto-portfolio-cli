@@ -7,6 +7,16 @@ class BaseModel {
       return this.model
   }
 
+  _validateArguments = (obj) => {
+        for (const key in obj) {
+            if (obj[key] === undefined) {
+                delete obj[key];
+            }
+        }
+
+        return obj
+  }
+
   create = async(object, opts = {}) => {
       try {
           const data = await this.model.create(object, opts)
@@ -27,9 +37,9 @@ class BaseModel {
       }
   }
 
-  findOne = async({where, limit, order, offset, raw}) => {
+  findOne = async({where, limit, order, offset, raw, attributes}) => {
       try {
-          const data = await this.model.findOne({where, limit, order, offset, raw})
+          const data = await this.model.findOne(this._validateArguments({where, limit, order, offset, raw, attributes}))
           return data
       } catch (error) {
           console.log(error.message)
@@ -37,15 +47,25 @@ class BaseModel {
       }
   }
 
-  count = async({where}) => {
+  find = async({where, limit, order, offset, raw, attributes}) => {
     try {
-        const data = await this.model.count({where})
+        const data = await this.model.findAll(this._validateArguments({where, limit, order, offset, raw, attributes}))
         return data
     } catch (error) {
         console.log(error.message)
         throw new Error(error)
     }
 }
+
+  count = async({where}) => {
+      try {
+          const data = await this.model.count({where})
+          return data
+      } catch (error) {
+          console.log(error.message)
+          throw new Error(error)
+      }
+  }
 
   truncate = async() => {
     try {

@@ -23,7 +23,7 @@ setTimeout(async() => {
             desc: 'Pretty print json output'
         }],
         desc: 'Get the balance for a specified token',
-        handler: Controllers.balanceControllers
+        handler: Controllers.portfolioControllers
     })
     
     CliService.parse(process.argv)

@@ -1,1 +1,2 @@
-exports.balanceControllers = require('./balance.controller')
+exports.portfolioControllers = require('./portfolio.controller')
+exports.settingControllers = require('./setting.controller')

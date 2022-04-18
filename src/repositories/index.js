@@ -1,13 +1,14 @@
 
 const { Sequelize } = require('sequelize');
 const CsvPortfolioRepo = require('./csv-portfolio.repo')
+const TokenRepo = require('./token.repo')
 
 class Repository {
     constructor() {
         this.db = new Sequelize(
             process.env.DB_NAME||'portfolio',
-            process.env.DB_USER||'user',
-            process.env.DB_PASSWORD||'pass',
+            process.env.DB_USER||'root',
+            process.env.DB_PASSWORD||'root',
             {
                 host: "0.0.0.0",
                 dialect: process.env.DB_TYPE||'sqlite',
@@ -17,6 +18,7 @@ class Repository {
         );
 
         this.CsvPortfolio = new CsvPortfolioRepo(this.db)
+        this.Token = new TokenRepo(this.db)
     }
 
     connect = async() => {
