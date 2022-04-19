@@ -15,7 +15,7 @@ class TokenAction {
             const existingTokens = await this.listToken() || []
             const newTokens = Utils.common.diffArray(tokens, existingTokens)
             if(newTokens.length == 0) return null
-            console.log(existingTokens, newTokens.map(token => ({token})))
+            //console.log(existingTokens, newTokens.map(token => ({token})))
             return await Repositories.Token.bulkCreate(newTokens.map(token => ({token})))
         } catch (error) {
             console.log(error)

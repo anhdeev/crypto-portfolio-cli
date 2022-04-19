@@ -9,6 +9,8 @@ const SettingAction = require('./setting.action')
 class CsvPortfolioAction {
     constructor() {
         this.CHUNK_SIZE = 128*1024 //128kb
+        this.DB_BULK_LIMIT = 300
+        this.bulkBalances = []
     }
 
     _getSyncedBalances = async(token=null, toDate=null) => {
@@ -46,7 +48,7 @@ class CsvPortfolioAction {
         return { amount, token, type, timeInSeconds }
     }
 
-    _saveBalances = async (balances, lastDate, today) => {
+    _saveBalances = async (balances, lastDate, today, last=false) => {
         if(!lastDate || lastDate == today) return
 
         const newBalances = Object.keys(balances).map(tokenName => ({
@@ -56,12 +58,19 @@ class CsvPortfolioAction {
             })
         )
 
-        // update token list
-        await TokenAction.updateTokenList(Object.keys(balances))
-        
-        //console.log({newBalances})
-        // create new balance by date
-        if (newBalances.length > 0) await Repositories.CsvPortfolio.bulkCreate(newBalances)
+        if (newBalances.length > 0) this.bulkBalances = [ ...this.bulkBalances, ...newBalances ]
+
+        if(last || this.bulkBalances.length >= this.DB_BULK_LIMIT) {
+            // update token list
+            const tokenSet = new Set();
+            this.bulkBalances.map(b => tokenSet.add(b.token));
+            await TokenAction.updateTokenList([...tokenSet])
+
+            //console.log({newBalances})
+            // create new balance by date
+            await Repositories.CsvPortfolio.bulkCreate(this.bulkBalances)
+            this.bulkBalances = []
+        }
     }
 
     _processRow = (data) => async (line) => {
@@ -164,7 +173,7 @@ class CsvPortfolioAction {
             // Process all unsynced rows if any
             await File.processAllLines(filePath, this._processRow(data), offset)
             // sync porfolio for the last date
-            await this._saveBalances(data.dateBalances, data.lastDate, data.today) 
+            await this._saveBalances(data.dateBalances, data.lastDate, data.today, true)
 
             // Merge unsynced balance with synced balance
             Object.keys(syncedTokenBalances).map(token => {
