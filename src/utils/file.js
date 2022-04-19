@@ -4,21 +4,31 @@ const readline = require('readline');
 const repos = require('../repositories')
 const Promise = require('bluebird')
 const moment = require('moment')
+const csv = require('csv-parser')
 
-// exports.processAllCsvRows = (filePath, handler) => {
-//     const start = Date.now()
-//     let a =0
-//     const stream = fs.createReadStream(filePath)
-//     stream.pipe(csv())
-//     .on('data', function(data) {
-//         a+= 1
-//     })
-//     .on('end',function(){
-//         const stop = Date.now()
-//         console.log((stop-start)/1000, a)
-//     }); 
-// }
+/* 
+const balance = {
+    BTC:0,
+    ETH:0,
+    XRP:0
+}
+exports.processAllCsvRows = (filePath) => {
+    const start = Date.now()
+    let a =0
+    const stream = fs.createReadStream(filePath)
+    stream.pipe(csv())
+    .on('data', function(data) {
+        balance[data.token] += Number(data.amount)
+    })
+    .on('end',function(){
+        const stop = Date.now()
+        console.log((stop-start)/1000, a)
+        console.log(balance)
+    }); 
+}
 
+this.processAllCsvRows('/Users/anhdv/Downloads/transactions.csv')
+ */
 
 exports.processAllLines = async(filePath, handler, offset=0) => {
     // console.log({filePath})
@@ -39,27 +49,43 @@ exports.processAllLines = async(filePath, handler, offset=0) => {
 }
 
 
-exports.processAllPureLines = async(filePath, handler, offset=0) => {
+exports.processAllPureLines = async(filePath, handler, offset, size) => {
     // console.log({filePath})
     const start = Date.now()
-    const fileStream = fs.createReadStream(filePath, {start: offset});
+    const linePadding = 50 // add padding to have completed last line for a splitted part
+    const fileStream = fs.createReadStream(filePath, {start: offset, end: (offset+size-1+linePadding)})
 
-    let remainder = '';
+    let remainder = ''
+    let byteCnt = 0
 
     for await (const buf of fileStream) {
-        const lines = (remainder + buf).split(/\r?\n/g);
-        remainder = lines.pop();
+        const lines = (remainder + buf).split(/\r?\n/g)
+
+        remainder = lines.pop()
         let running = false
-        
+        let first = true
+
         for (const line of lines) {
+            byteCnt += (line.length +1)
+
+            if(first || !line) { // bypass header or first line of a splited part
+                first=false
+                continue
+            }
+
             running = await handler(line)
-            if(!running) break
+
+            if(!running || byteCnt > size) {
+                //console.log(`Break stream`)
+                break
+            }
         }
         
         if(!running) break
     }
-
-    console.log(`Processed stream in ${(Date.now()-start)/1000} seconds`)
+    //byteCnt+=remainder.length
+    //console.log(remainder)
+    //console.log(`Processed stream ${byteCnt} - ${size} bytes in ${(Date.now()-start)/1000} seconds`)
 }
 
 exports.getFirstLineOffset = async(filePath, offset=0) => {

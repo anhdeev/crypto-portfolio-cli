@@ -15,13 +15,13 @@ setTimeout(async() => {
     CliService.addCommand({
         cmd: 'flush',
         desc: 'Flush the cache',
-        handler: Controllers.portfolioControllers
+        handler: Controllers.settingControllers.flushCache
     })
     
     CliService.addCommand({
         cmd: 'path',
         desc: 'Set the csv path',
-        handler: Controllers.portfolioControllers
+        handler: Controllers.settingControllers.setFilePath
     })
 
     // Main

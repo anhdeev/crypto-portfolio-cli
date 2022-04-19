@@ -21,7 +21,7 @@ module.exports = (sequelize) => {
             allowNull: false 
         }
     }, {
-        indexes: [{ unique: true, fields: ['id'] }]
+        indexes: [{ unique: false, fields: ['id', 'token', 'date'] }]
     });
 
     return CsvPortfolio;

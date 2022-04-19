@@ -1,6 +1,7 @@
 const Models = require('./models')
 const BaseRepo = require('./base.repo')
 const { Op } = require('sequelize');
+const Repositories = require('../repositories')
 
 class CsvPortfolioRepo extends BaseRepo {
     constructor(db) {
@@ -25,12 +26,29 @@ class CsvPortfolioRepo extends BaseRepo {
             if(token) {
                 query.where.token = token
             }
-            const data = await this.aggregate(query)
+            let data = await this.aggregate(query)
+
+            data = data && data.reduce((rst, cur) => {
+                rst[cur.token] = cur.balance
+                return rst
+            }, {})
+
             return data
         } catch (error) {
             console.log(error.message)
             throw new Error(error)
         }
+    }
+
+
+    getLatestSyncedDate = async() => {
+        const latestBalance = await this.findOne({
+            order: [['date', 'DESC' ]],
+            attributes: ['date'],
+            raw : true
+        })
+        
+        return latestBalance ? latestBalance.date: 0
     }
 }
   

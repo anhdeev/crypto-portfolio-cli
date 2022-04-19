@@ -21,6 +21,7 @@ class SettingAction {
         try {
             await Repositories.CsvPortfolio.truncate()
             await Repositories.Token.truncate()
+            console.log('OK')
         } catch (error) {
             console.log(error)
             throw error
