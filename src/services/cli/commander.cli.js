@@ -1,5 +1,6 @@
 const SimpleCli = require('./simple.cli')
 const { Command } = require('commander');
+const Utils = require('../../utils')
 
 class ComanderCli extends SimpleCli {
     constructor() {
@@ -70,6 +71,44 @@ class ComanderCli extends SimpleCli {
             console.log(error.message)
             throw error
         }
+    }
+
+    addOption = ({short, long, type, desc, def}) => {
+        const args = []
+        let option = ''
+        
+        if(short) option += `-${short}`
+        if(long) option? (option += `,--${long}`) : option += `,--${long}`
+        if(type) option += ` <${type}>`
+        
+        args.push(option)
+        desc && args.push(desc)
+        def && args.push(def)
+        //console.log(args)
+        this.program.option(...args);
+    }
+
+    addArgument = ({name, desc}) => {
+        this.program.argument(name, desc);
+    }
+
+    addAction = (cb) => {
+        const _wrapper = (...args) => {
+            if(args.length < 2) return
+
+            const options = args[args.length-2]
+            const argValues = args[args.length-1].processedArgs
+            const values = args[args.length-1].args
+            const optValues = Utils.common.diffArray(values, argValues)
+
+            Object.keys(options).map((key,index) => {
+                options[key] = optValues[index]
+            })
+
+            cb(argValues, options)
+        }
+
+        this.program.action(_wrapper)
     }
 }
 

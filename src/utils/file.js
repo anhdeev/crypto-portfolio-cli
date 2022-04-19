@@ -21,7 +21,7 @@ const moment = require('moment')
 
 
 exports.processAllLines = async(filePath, handler, offset=0) => {
-    console.log({filePath})
+    // console.log({filePath})
     const start = Date.now()
     const fileStream = fs.createReadStream(filePath, {start: offset});
 
@@ -59,6 +59,12 @@ exports.getFirstLineOffset = async(filePath, offset=0) => {
 exports.getFileSize = async(filePath) => {
     const stat = await fs.promises.stat(filePath)
     return stat.size
+}
+
+exports.isFileExist = async(filePath) => {
+    return fs.promises.access(filePath, fs.constants.F_OK)
+    .then(() => true)
+    .catch(() => false)
 }
 
 // setImmediate(async() => {

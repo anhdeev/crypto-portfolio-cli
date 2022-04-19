@@ -1,3 +1,5 @@
+const { Sequelize } = require('sequelize');
+
 class BaseModel {
   constructor(model) {
       this.model = model
@@ -48,14 +50,34 @@ class BaseModel {
   }
 
   find = async({where, limit, order, offset, raw, attributes}) => {
-    try {
-        const data = await this.model.findAll(this._validateArguments({where, limit, order, offset, raw, attributes}))
-        return data
-    } catch (error) {
-        console.log(error.message)
-        throw new Error(error)
+        try {
+            const data = await this.model.findAll(this._validateArguments({where, limit, order, offset, raw, attributes}))
+            return data
+        } catch (error) {
+            console.log(error.message)
+            throw new Error(error)
+        }
     }
-}
+
+
+  aggregate = async({where, order, raw, attributes, col, group}) => {
+        try {
+            attributes = [...attributes, [Sequelize.fn('sum', Sequelize.col(col)), col]]
+            
+            const data = this.model.findAll(this._validateArguments({
+                where,
+                attributes,
+                group,
+                raw,
+                order
+              }));
+
+            return data
+        } catch (error) {
+            console.log(error.message)
+            throw new Error(error)
+        }
+    }
 
   count = async({where}) => {
       try {

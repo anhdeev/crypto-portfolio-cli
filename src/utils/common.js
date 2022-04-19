@@ -14,6 +14,14 @@ exports.convertMilisecondToDate = (timeInMs) => {
     return parseInt(timeInMs / CONSTANTS.MathConst.TIME.MILISECONDS_PER_DAY)
 }
 
+exports.parseStringToDateNumber = (date) => {
+    const date_regex = /^\d{4}-\d{2}-\d{2}$/;
+    const ms = new Date(date).getTime()
+    if(!date_regex.test(date) || isNaN(ms)) throw new Error('Date format incorrect. Must be yyyy-mm-dd')
+
+    return this.convertMilisecondToDate(ms)
+}
+
 exports.diffArray = (a1, a2) => {
     const result = [];
 

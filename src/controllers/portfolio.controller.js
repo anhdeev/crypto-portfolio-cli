@@ -1,12 +1,24 @@
 const Actions = require('../actions')
 const path = require('path')
+const Utils = require('../utils/index')
 
-module.exports = async(symbol, options) => {
-    console.log(symbol, options)
+exports.getPortfolio = async(args, {file, token, date}) => {
+    try {
+        token = token && token.toUpperCase()
+        const fpath = file || path.resolve(__dirname, '../../../../../Downloads/transactions.csv')
+        if(!(await Utils.file.isFileExist(fpath))) throw new Error(`File not found`)
 
-    const fpath = path.resolve(__dirname, '../../../../../Downloads/transactions.csv')
-    //const data = await Actions.CsvPortfolioAction.getPortfolioOnDate(fpath, 1006)
-    const data = await Actions.CsvPortfolioAction.getPortfolioLatest(fpath)
-
-    console.log({data})
+        let data = null
+        
+        if(date) {
+            date = Utils.common.parseStringToDateNumber(date)
+            data = await Actions.CsvPortfolioAction.getPortfolioOnDate(fpath, date, token)
+        } else {
+            data = await Actions.CsvPortfolioAction.getPortfolioLatest(fpath, token)
+        }
+    
+        console.log(data)
+    } catch (error) {
+        console.log(error.message)
+    }
 }

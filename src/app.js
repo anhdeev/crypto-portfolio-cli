@@ -10,21 +10,40 @@ setTimeout(async() => {
         name: 'cryptop',
         version: '1.0'
     })
-    
+
+    // Sub command
     CliService.addCommand({
-        cmd: 'balance',
-        args: [{
-            name: 'symbol',
-            desc: 'Symbol name of a token'
-        }],
-        opts: [{
-            short: 'p',
-            long: 'pretty',
-            desc: 'Pretty print json output'
-        }],
-        desc: 'Get the balance for a specified token',
+        cmd: 'flush',
+        desc: 'Flush the cache',
         handler: Controllers.portfolioControllers
     })
     
+    CliService.addCommand({
+        cmd: 'path',
+        desc: 'Set the csv path',
+        handler: Controllers.portfolioControllers
+    })
+
+    // Main
+    CliService.addOption({
+        short: 'f',
+        long: 'file',
+        desc: 'Specify csv file path'
+    })
+
+    CliService.addOption({
+        short: 't',
+        long: 'token',
+        desc: 'Symbol name of a token'
+    })
+
+    CliService.addOption({
+        short: 'd',
+        long: 'date',
+        desc: 'specify a date to get balance'
+    })
+
+    CliService.addAction(Controllers.portfolioControllers.getPortfolio)
+
     CliService.parse(process.argv)
 })

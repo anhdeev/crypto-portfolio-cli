@@ -12,33 +12,17 @@ class CsvPortfolioAction {
     }
 
     _getSyncedBalances = async(token=null, toDate=null) => {
+        // console.log({token, toDate})
         const latestBalance = await Repositories.CsvPortfolio.findOne({
-            order: [['id', 'ASC' ]],
+            order: [['date', 'DESC' ]],
             attributes: ['date'],
             raw : true
         })
 
         if(!latestBalance) return null
-
-        const tokens = !token ? (await TokenAction.listToken() || []) : [token]
-        
-        let tokenBalances = await Promise.map(tokens, async(token) => {
-            const where = {token}
-            if(toDate) where.date = toDate
-
-            const tokenBalance = await Repositories.CsvPortfolio.findOne({
-                where,
-                attributes: ['token', 'balance'],
-                order: [['id', 'ASC' ]],
-                raw : true
-            })
-
-            return tokenBalance
-        }, {concurrency: 5})
-
-        if(!tokenBalances || tokenBalances.length == 0 || tokenBalances.length != tokens.length) {
-            console.log(`Clear cache due to mismatch`)
-            await SettingAction.flushCache()
+        //const tokens = !token ? (await TokenAction.listToken() || []) : [token]
+        let tokenBalances = await Repositories.CsvPortfolio.getBalanceOnDate(token, toDate)
+        if(!tokenBalances || tokenBalances.length == 0) {
             return null
         }
 
@@ -75,7 +59,7 @@ class CsvPortfolioAction {
         // update token list
         await TokenAction.updateTokenList(Object.keys(balances))
         
-        console.log({newBalances})
+        //console.log({newBalances})
         // create new balance by date
         if (newBalances.length > 0) await Repositories.CsvPortfolio.bulkCreate(newBalances)
     }
@@ -97,18 +81,22 @@ class CsvPortfolioAction {
             console.log('Stop the stream due to the remaining dates already cached')
             return false 
         } else if(currentDate != data.lastDate) { // finished processing all transactions on a date > save the current date's porfolio to db
-            await this._saveBalances(data.balances, data.lastDate, data.today)
-            data.balances = {} // clear balance each day
+            await this._saveBalances(data.dateBalances, data.lastDate, data.today)
+            data.dateBalances = {} // clear balance each day
             data.lastDate = currentDate
         }
 
         // Update balance for each token
-        if(type.startsWith('D')) {
+        let updateAmount = 0
+        if(type.startsWith('W')) updateAmount=-amount
+        else if(type.startsWith('D')) updateAmount=amount
+
+        if(data.dateBalances.hasOwnProperty(token)) data.dateBalances[token] +=amount
+        else data.dateBalances[token] = amount
+        
+        if(!data.onlyToken || data.onlyToken === token) {
             if(data.balances.hasOwnProperty(token)) data.balances[token] +=amount
             else data.balances[token] = amount
-        } else if(type.startsWith('W')) {
-            if(data.balances.hasOwnProperty(token)) data.balances[token] -=amount
-            else data.balances[token] = -amount
         }
 
         return true
@@ -158,8 +146,10 @@ class CsvPortfolioAction {
             const {syncedDate, tokenBalances: syncedTokenBalances} = Object.assign(defaultSyncedBalance, await this._getSyncedBalances(token))
             const data = {
                 balances: {},
+                dateBalances: {},
                 lastDate: 0,
                 toDate,
+                onlyToken: token,
                 latestSyncedDate: syncedDate ? syncedDate : 0,
                 firstRow: true,
                 today: Utils.common.convertMilisecondToDate(Date.now())
@@ -167,15 +157,14 @@ class CsvPortfolioAction {
 
             if(toDate <= data.latestSyncedDate) { // if the date already cached, return result without read csv
                 const result = await this._getSyncedBalances(token, toDate)
-                if(result) return result
-                else { /* TODO: flush cache */}
+                return result ? result.tokenBalances : {}
             }
 
-            console.log({syncedDate, syncedTokenBalances, offset})
+            // console.log({syncedDate, syncedTokenBalances, offset})
             // Process all unsynced rows if any
             await File.processAllLines(filePath, this._processRow(data), offset)
             // sync porfolio for the last date
-            await this._saveBalances(data.balances, data.lastDate, data.today) 
+            await this._saveBalances(data.dateBalances, data.lastDate, data.today) 
 
             // Merge unsynced balance with synced balance
             Object.keys(syncedTokenBalances).map(token => {
@@ -183,10 +172,9 @@ class CsvPortfolioAction {
                     syncedTokenBalances[token] += data.balances[token]
                 }
             })
-            if(token) data.balances = syncedTokenBalances
-            else Object.assign(data.balances, syncedTokenBalances)
+            Object.assign(data.balances, syncedTokenBalances)
 
-            return data
+            return data.balances
         } catch (error) {
             console.log(error)
             throw error

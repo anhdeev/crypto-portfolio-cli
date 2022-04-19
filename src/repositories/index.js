@@ -25,7 +25,7 @@ class Repository {
         try {
             await this.db.authenticate();
             await this.db.sync(); // sync schema at startup
-            console.log('Connection has been established successfully.');
+            //console.log('Connection has been established successfully.');
         } catch (error) {
             console.error('Unable to connect to the database:', error);
         }
