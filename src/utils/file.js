@@ -38,6 +38,30 @@ exports.processAllLines = async(filePath, handler, offset=0) => {
     console.log(`Processed stream in ${(Date.now()-start)/1000} seconds`)
 }
 
+
+exports.processAllPureLines = async(filePath, handler, offset=0) => {
+    // console.log({filePath})
+    const start = Date.now()
+    const fileStream = fs.createReadStream(filePath, {start: offset});
+
+    let remainder = '';
+
+    for await (const buf of fileStream) {
+        const lines = (remainder + buf).split(/\r?\n/g);
+        remainder = lines.pop();
+        let running = false
+        
+        for (const line of lines) {
+            running = await handler(line)
+            if(!running) break
+        }
+        
+        if(!running) break
+    }
+
+    console.log(`Processed stream in ${(Date.now()-start)/1000} seconds`)
+}
+
 exports.getFirstLineOffset = async(filePath, offset=0) => {
     const fileStream = fs.createReadStream(filePath, {start:offset});
 

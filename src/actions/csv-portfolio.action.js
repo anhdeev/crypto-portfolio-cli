@@ -171,7 +171,7 @@ class CsvPortfolioAction {
 
             // console.log({syncedDate, syncedTokenBalances, offset})
             // Process all unsynced rows if any
-            await File.processAllLines(filePath, this._processRow(data), offset)
+            await File.processAllPureLines(filePath, this._processRow(data), offset)
             // sync porfolio for the last date
             await this._saveBalances(data.dateBalances, data.lastDate, data.today, true)
 
