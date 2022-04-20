@@ -6,5 +6,7 @@ exports.flushCache = async() => {
 }
 
 exports.setFilePath = async(path, options) => {
-    return await Actions.SettingAction.setDefaultCsvPath(path)
+    const data = await Actions.SettingAction.setDefaultCsvPath(path)
+    console.log('OK')
+    return data
 }

@@ -2,6 +2,7 @@
 const { Sequelize } = require('sequelize');
 const CsvPortfolioRepo = require('./csv-portfolio.repo')
 const TokenRepo = require('./token.repo')
+const SettingRepo = require('./setting.repo')
 
 class Repository {
     constructor() {
@@ -13,12 +14,16 @@ class Repository {
                 host: "0.0.0.0",
                 dialect: process.env.DB_TYPE||'sqlite',
                 storage: process.env.DB_PATH || '/tmp/portfolio-db.sqlite',
-                logging: false
+                logging: false,
+                dialectOptions: {
+                    decimalNumbers: true
+                }
             }
         );
 
         this.CsvPortfolio = new CsvPortfolioRepo(this.db)
         this.Token = new TokenRepo(this.db)
+        this.Setting = new SettingRepo(this.db)
     }
 
     connect = async() => {

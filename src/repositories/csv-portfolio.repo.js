@@ -2,7 +2,7 @@ const Models = require('./models')
 const BaseRepo = require('./base.repo')
 const { Op } = require('sequelize');
 const Repositories = require('../repositories')
-
+const Utils = require('../utils')
 class CsvPortfolioRepo extends BaseRepo {
     constructor(db) {
         super(Models.CsvPortfolioModel(db))
@@ -29,7 +29,7 @@ class CsvPortfolioRepo extends BaseRepo {
             let data = await this.aggregate(query)
 
             data = data && data.reduce((rst, cur) => {
-                rst[cur.token] = cur.balance
+                rst[cur.token] = Utils.bignumber.round(cur.balance)
                 return rst
             }, {})
 

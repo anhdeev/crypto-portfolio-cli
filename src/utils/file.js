@@ -1,6 +1,7 @@
 const fs = require('fs'); 
 const path = require('path')
 const readline = require('readline');
+const {split} = require('./common')
 
 exports.processAllLines = async(filePath, handler, offset=0) => {
     // console.log({filePath})
@@ -57,7 +58,7 @@ exports.processAllPureLines = async(filePath, handler, offset, size) => {
     }
     //byteCnt+=remainder.length
     //console.log(remainder)
-    console.log(`Processed stream ${byteCnt} - ${size} bytes in ${(Date.now()-start)/1000} seconds`)
+    //console.log(`Processed stream ${byteCnt} bytes in ${(Date.now()-start)/1000} seconds`)
 }
 
 exports.getFirstLineOffset = async(filePath, offset=0) => {

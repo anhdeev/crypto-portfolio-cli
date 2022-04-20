@@ -5,7 +5,7 @@ const Promise = require('bluebird')
 const Utils = require('../utils')
 const TokenAction = require('./token.action')
 const SettingAction = require('./setting.action')
-const {bignumber} = require('../utils');
+const {bignumber} = Utils
 
 class CsvStreamAction {
     static CHUNK_SIZE = 128*1024 //128kb
@@ -100,7 +100,7 @@ class CsvStreamAction {
         if(this.currentDate > this.toDate) { // skip calculate for this row due to the target date not reached
             return true
         } else if(this.currentDate <= this.latestSyncedDate) { // stop the stream if meet the last synced date
-            console.log('Stop the stream due to the remaining dates already cached')
+            //console.log('Stop the stream due to the remaining dates already cached')
             return false 
         } else if(this.currentDate != this.lastDay) { // finished processing all transactions on a date > save the current date's porfolio to db
             await this._saveBalances()

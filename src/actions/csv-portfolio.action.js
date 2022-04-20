@@ -19,7 +19,7 @@ class CsvPortfolioAction {
         try {
             const latestSyncedDate = await Repositories.CsvPortfolio.getLatestSyncedDate()
             const syncedTokenBalances = await Repositories.CsvPortfolio.getBalanceOnDate(token)
-            console.log({latestSyncedDate, syncedTokenBalances})
+            //console.log({latestSyncedDate, syncedTokenBalances})
 
             if(toDate <= latestSyncedDate) { // if the date already cached, return result without read csv
                 const result = await Repositories.CsvPortfolio.getBalanceOnDate(token, toDate)
@@ -166,7 +166,7 @@ class CsvPortfolioAction {
     getPortfolioOnDate = async(filePath, toDate, token=null) => {
         try {
             const {offset, fileSzInBytes} = await this._findOffsetCloseToDate(filePath, toDate)
-            console.log({offset, fileSzInBytes})
+            //console.log({offset, fileSzInBytes})
             return await this._getPortfolio({filePath, offset, toDate, token, fileSzInBytes})
         } catch (error) {
             console.log(error)

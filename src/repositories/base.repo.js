@@ -79,6 +79,16 @@ class BaseModel {
         }
     }
 
+    update = async({where, object}) => {
+        try {
+            const data = await this.model.update(object, {where})
+            return data
+        } catch (error) {
+            console.log(error.message)
+            throw new Error(error)
+        }
+    }
+
   count = async({where}) => {
       try {
           const data = await this.model.count({where})
