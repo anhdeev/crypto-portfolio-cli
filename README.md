@@ -17,7 +17,7 @@ Propine test assignment
 - Set default csv path
 
 ## Installation
-Install package.
+Install package. (prequisite: node >= v12)
 ```sh
 cd crypto-portfolio-cli
 yarn install
@@ -92,3 +92,6 @@ Sqlite3 is simple, lightweight and no dependencies. It stores db in a local file
 ---
 ## Unit tests (TBD)
 ## License
+
+## Note
+Tested on [Ubuntu 20, node -v 12.22, npm -v6.14] and [MacOs node -v14, npm -v6.14]
