@@ -1,8 +1,11 @@
 const {Worker} = require('worker_threads')
+const path = require('path')
 
 exports.launchWorker = async (file, workerData) => {
+    const absfile = path.resolve(__dirname, '../../', file)
+
     return new Promise((resolve, reject) => {
-        const worker = new Worker(file, {
+        const worker = new Worker(absfile, {
             workerData,
         })
         worker.on('message', resolve)

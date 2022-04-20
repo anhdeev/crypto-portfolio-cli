@@ -7,7 +7,7 @@ class SettingAction {
 
     setDefaultCsvPath = async (fpath) => {
         try {
-            fpath = path.resolve(__dirname, '../../', fpath)
+            //fpath = path.resolve(__dirname, fpath)
             if (!(await Utils.file.isFileExist(fpath))) {
                 throw new Error(`File not found ${fpath}`)
             }
