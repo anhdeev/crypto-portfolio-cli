@@ -74,6 +74,15 @@ class SettingAction {
         }
     }
 
+    getDefaultCsvPath =async() => {
+        try {
+            const existingSetting = await Repositories.Setting.findOne({ where: {key: 'path'}, raw: true})
+            return existingSetting ? existingSetting.value : null
+        } catch (error) {
+            console.log(error)
+            throw error
+        }
+    }
     flushCache = async() => {
         try {
             await Repositories.CsvPortfolio.truncate()
