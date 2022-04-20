@@ -1,7 +1,7 @@
-const {Worker, isMainThread, parentPort, workerData } = require('worker_threads')
+const {parentPort, workerData} = require('worker_threads')
 const CsvStreamAction = require('../actions/csv-stream.action')
 
-setImmediate(async() => {
+setImmediate(async () => {
     try {
         const {filePath, offset, toDate, token, latestSyncedDate, splitSz} = workerData
         // console.log({workerData})

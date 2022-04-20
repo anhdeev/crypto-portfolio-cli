@@ -1,52 +1,47 @@
 const Repositories = require('../repositories')
-const moment = require('moment')
-const File = require('../utils/file')
-const Promise = require('bluebird')
 const Utils = require('../utils')
 
 class TokenAction {
-    constructor() {
-    }
+    constructor() {}
 
-    updateTokenList = async(tokens) => {
+    updateTokenList = async (tokens) => {
         try {
-            if(!tokens || !Array.isArray(tokens) || tokens.length == 0) return
+            if (!tokens || !Array.isArray(tokens) || tokens.length == 0) return
 
-            const existingTokens = await this.listToken() || []
+            const existingTokens = (await this.listToken()) || []
             const newTokens = Utils.common.diffArray(tokens, existingTokens)
-            if(newTokens.length == 0) return null
+            if (newTokens.length == 0) return null
             //console.log(existingTokens, newTokens.map(token => ({token})))
-            return await Repositories.Token.bulkCreate(newTokens.map(token => ({token})))
+            return await Repositories.Token.bulkCreate(newTokens.map((token) => ({token})))
         } catch (error) {
             console.log(error)
             throw error
         }
     }
 
-    listToken = async() => {
+    listToken = async () => {
         try {
             const rst = await Repositories.Token.find({
-                raw:true, 
-                attributes: ['token']
+                raw: true,
+                attributes: ['token'],
             })
 
-            return rst.map(r => r.token)
+            return rst.map((r) => r.token)
         } catch (error) {
             console.log(error)
             throw error
         }
     }
 
-    getToken = async(name) => {
+    getToken = async (name) => {
         try {
-
         } catch (error) {
             console.log(error)
             throw error
         }
     }
 
-    countTokens = async() => {
+    countTokens = async () => {
         try {
             const total = await Repositories.Token.count()
             console.log({total})

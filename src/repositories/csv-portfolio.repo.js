@@ -1,14 +1,13 @@
 const Models = require('./models')
 const BaseRepo = require('./base.repo')
-const { Op } = require('sequelize');
-const Repositories = require('../repositories')
+const {Op} = require('sequelize')
 const Utils = require('../utils')
 class CsvPortfolioRepo extends BaseRepo {
     constructor(db) {
-        super(Models.CsvPortfolioModel(db))
+        super(Models.csvPortfolioModel(db))
     }
 
-    // Get aggreate of balance of all time until toDate 
+    // Get aggreate of balance of all time until toDate
     getBalanceOnDate = async (token, toDate) => {
         try {
             const query = {
@@ -16,22 +15,24 @@ class CsvPortfolioRepo extends BaseRepo {
                 col: 'balance',
                 group: 'token',
                 attributes: ['token', 'balance'],
-                raw : true
+                raw: true,
             }
 
-            if(toDate) {
-                query.where.date = { [Op.lte]: toDate }
+            if (toDate) {
+                query.where.date = {[Op.lte]: toDate}
             }
 
-            if(token) {
+            if (token) {
                 query.where.token = token
             }
             let data = await this.aggregate(query)
 
-            data = data && data.reduce((rst, cur) => {
-                rst[cur.token] = Utils.bignumber.round(cur.balance)
-                return rst
-            }, {})
+            data =
+                data &&
+                data.reduce((rst, cur) => {
+                    rst[cur.token] = Utils.bignumber.round(cur.balance)
+                    return rst
+                }, {})
 
             return data
         } catch (error) {
@@ -40,16 +41,15 @@ class CsvPortfolioRepo extends BaseRepo {
         }
     }
 
-
-    getLatestSyncedDate = async() => {
+    getLatestSyncedDate = async () => {
         const latestBalance = await this.findOne({
-            order: [['date', 'DESC' ]],
+            order: [['date', 'DESC']],
             attributes: ['date'],
-            raw : true
+            raw: true,
         })
-        
-        return latestBalance ? latestBalance.date: 0
+
+        return latestBalance ? latestBalance.date : 0
     }
 }
-  
-module.exports = CsvPortfolioRepo;
+
+module.exports = CsvPortfolioRepo

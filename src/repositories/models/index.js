@@ -1,3 +1,3 @@
-exports.CsvPortfolioModel = require('./csv-portfolio.model')
-exports.Token = require('./token.model')
-exports.Setting = require('./setting.model')
+exports.csvPortfolioModel = require('./csv-portfolio.model')
+exports.token = require('./token.model')
+exports.setting = require('./setting.model')

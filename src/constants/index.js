@@ -4,5 +4,5 @@ const MathConst = require('./math.constant')
 module.exports = {
     EnvConst,
     LangConst,
-    MathConst
+    MathConst,
 }
