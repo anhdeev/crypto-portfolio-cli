@@ -18,6 +18,13 @@ setTimeout(async () => {
         handler: Controllers.settingControllers.flushCache,
     })
 
+    // Sub command
+    CliService.addCommand({
+        cmd: 'list',
+        desc: 'List token',
+        handler: Controllers.portfolioControllers.listToken,
+    })
+
     CliService.addCommand({
         cmd: 'path',
         args: [
@@ -46,7 +53,7 @@ setTimeout(async () => {
     CliService.addOption({
         short: 'd',
         long: 'date',
-        desc: 'specify a date to get balance',
+        desc: 'Specify a date to get balance',
     })
 
     CliService.addOption({

@@ -7,6 +7,7 @@
     "cryptop": "./index.js"
   },
   "scripts": {
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "validate": "eslint src/**/*.js",
     "format": "prettier --write \"src/**/*.{js,css,scss}\""
@@ -18,6 +19,7 @@
     "axios": "^0.26.1",
     "bignumber.js": "^9.0.2",
     "bluebird": "^3.7.2",
+    "chalk": "4",
     "commander": "^9.1.0",
     "currency-formatter": "^1.5.9",
     "human-readable-numbers": "^0.9.5",

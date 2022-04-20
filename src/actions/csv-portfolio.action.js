@@ -142,7 +142,6 @@ class CsvPortfolioAction {
 
                 const row = line.split(',')
                 const currentDate = Utils.common.convertSecondToDate(row[0])
-                date = currentDate
 
                 if (currentDate == targetDate) {
                     // shift back until start offset cover the target day

@@ -4,6 +4,8 @@ const Promise = require('bluebird')
 const {getPrice} = require('../services/get-price')
 const currencyFormatter = require('currency-formatter')
 const CONSTANTS = require('../constants')
+const {logger} = require('../utils')
+const {BigNumber} = require('bignumber.js')
 
 const _validateArguments = async ({file, token, date}) => {
     const fpath = file || (await Actions.SettingAction.getDefaultCsvPath())
@@ -13,6 +15,16 @@ const _validateArguments = async ({file, token, date}) => {
     if (token) token = token.toUpperCase()
 
     return {vfile: fpath, vtoken: token, vdate: date}
+}
+
+exports.listToken = async() => {
+    try {
+        const tokens = await Actions.TokenAction.listToken()
+        console.log(tokens)
+    } catch (error) {
+        console.log(error)
+        throw error
+    }
 }
 
 exports.getPortfolio = async (args, {file, token, date, readable}) => {
@@ -38,7 +50,7 @@ exports.getPortfolio = async (args, {file, token, date, readable}) => {
                     console.error(price)
                 }
 
-                data[token] = Utils.bignumber.multiply(data[token], Number(price[CONSTANTS.EnvConst.CURRENCY.USD]))
+                data[token] = new BigNumber(data[token]).multipliedBy(Number(price[CONSTANTS.EnvConst.CURRENCY.USD])).toFixed(6)
                 if (readable === 'true') {
                     data[token] = currencyFormatter.format(data[token], {code: CONSTANTS.EnvConst.CURRENCY.USD})
                 }
@@ -46,8 +58,7 @@ exports.getPortfolio = async (args, {file, token, date, readable}) => {
             {concurrency: 3},
         )
 
-        console.log('')
-        console.log(data)
+        logger.displayBalance(data)
     } catch (error) {
         console.log(error.message)
     }
