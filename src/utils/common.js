@@ -33,3 +33,18 @@ exports.diffArray = (a1, a2) => {
 
     return result;
 }
+
+exports.split = (line, delimiter=',') => {
+  const result = []
+  let col = ''
+  for(let i=0; i< line.length; ++i) {
+    const c = line[i]
+    if(c == delimiter) col+=c
+    else {
+      col && result.push(col)
+      col=''
+    }
+  }
+  col && result.push(col)
+  return result
+}

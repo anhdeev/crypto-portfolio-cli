@@ -20,7 +20,11 @@ setTimeout(async() => {
     
     CliService.addCommand({
         cmd: 'path',
-        desc: 'Set the csv path',
+        args: [{
+            name: 'file-path', 
+            desc:'relative path to the csv file'
+        }],
+        desc: 'Set the default csv path',
         handler: Controllers.settingControllers.setFilePath
     })
 
