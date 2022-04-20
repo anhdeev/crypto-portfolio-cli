@@ -30,7 +30,7 @@ npm install -g .
 // uninstall
 npm uninstall -g
 
-// sample run
+// sample run (prepare .env)
 % cryptop path ~/Downloads/transactions.csv   <-- should passing absolute path
 OK
 % cryptop --readable true
