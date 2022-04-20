@@ -7,6 +7,8 @@ const TokenAction = require('./token.action')
 const SettingAction = require('./setting.action')
 const CsvStreamAction = require('./csv-stream.action')
 const {launchCsvStreamWorker} = require('../workers')
+const {bignumber} = require('../utils/index')
+
 
 class CsvPortfolioAction {
     constructor() {
@@ -16,14 +18,14 @@ class CsvPortfolioAction {
     _getPortfolio = async ({filePath, offset=0, toDate=Number.MAX_SAFE_INTEGER, token=null, fileSzInBytes}) => {
         try {
             const latestSyncedDate = await Repositories.CsvPortfolio.getLatestSyncedDate()
+            const syncedTokenBalances = await Repositories.CsvPortfolio.getBalanceOnDate(token)
+            console.log({latestSyncedDate, syncedTokenBalances})
 
             if(toDate <= latestSyncedDate) { // if the date already cached, return result without read csv
                 const result = await Repositories.CsvPortfolio.getBalanceOnDate(token, toDate)
                 return result
             }
 
-            const syncedTokenBalances = await Repositories.CsvPortfolio.getBalanceOnDate(token)
-            console.log(latestSyncedDate, syncedTokenBalances)
 
             // WORKER THREADS
             const workerPromises = []
@@ -40,15 +42,15 @@ class CsvPortfolioAction {
 
             const {balances, unsavedDayBalances} = this._mergeBalances(data)
             if(unsavedDayBalances.length) await Repositories.CsvPortfolio.bulkCreate(unsavedDayBalances)
-            console.log(unsavedDayBalances)
+            // console.log({unsavedDayBalances})
 
-            // Merge with cache balance
-            // Object.keys(syncedTokenBalances).map(token => {
-            //     if(balances.hasOwnProperty(token)) {
-            //         syncedTokenBalances[token] += balances[token]
-            //     }
-            // })
-            // Object.assign(balances, syncedTokenBalances)
+            //Merge with cache balance
+            Object.keys(syncedTokenBalances||{}).map(token => {
+                if(balances.hasOwnProperty(token)) {
+                    syncedTokenBalances[token] = bignumber.add(syncedTokenBalances[token], balances[token])
+                }
+            })
+            Object.assign(balances, syncedTokenBalances)
 
             return balances
         } catch (error) {
@@ -67,7 +69,7 @@ class CsvPortfolioAction {
             // merge balance
             Object.keys(d.balances).map(token => {
                 if(result.balances[token]) 
-                    result.balances[token] += d.balances[token]
+                    result.balances[token] = bignumber.add(result.balances[token], d.balances[token])
                 else 
                     result.balances[token] = d.balances[token]
             })
@@ -78,19 +80,19 @@ class CsvPortfolioAction {
 
                 Object.keys(d.firstDayBalances).map(token => {
                     if(result.unsavedDayBalances[d.firstDay][token])
-                        result.unsavedDayBalances[d.firstDay][token] += d.firstDayBalances[token]
+                        result.unsavedDayBalances[d.firstDay][token] = bignumber.add(result.unsavedDayBalances[d.firstDay][token], d.firstDayBalances[token])
                     else
                         result.unsavedDayBalances[d.firstDay][token] = d.firstDayBalances[token]
                 })
             }
 
-            if(d.lastDay>0 && d.lastDayBalances) {
+            if(d.lastDay>0 && d.lastDay !== d.firstDay && d.lastDayBalances) {
                 if(!result.unsavedDayBalances[d.lastDay]) 
                     result.unsavedDayBalances[d.lastDay] = {}
 
                 Object.keys(d.lastDayBalances).map(token => {
                     if(result.unsavedDayBalances[d.lastDay][token])
-                        result.unsavedDayBalances[d.lastDay][token] += d.lastDayBalances[token]
+                        result.unsavedDayBalances[d.lastDay][token] = bignumber.add(result.unsavedDayBalances[d.lastDay][token], d.lastDayBalances[token])
                     else 
                         result.unsavedDayBalances[d.lastDay][token] = d.lastDayBalances[token]
                 })
@@ -121,12 +123,12 @@ class CsvPortfolioAction {
     
             const _binarySearch = async() => {
                 if(end-start < this.CHUNK_SIZE) { // return result when it close to the target less than the chunk size 
-                    return {start, fileSzInBytes}
+                    return {offset:start, fileSzInBytes}
                 }
                 const middle = Math.floor((start+end) / 2)
     
                 const line = await File.getFirstLineOffset(filePath, middle)
-                if(!line) return {start:0, fileSzInBytes}
+                if(!line) return {offset:0, fileSzInBytes}
     
                 const row = line.split(',')
                 const currentDate = Utils.common.convertSecondToDate(row[0])
@@ -164,7 +166,7 @@ class CsvPortfolioAction {
     getPortfolioOnDate = async(filePath, toDate, token=null) => {
         try {
             const {offset, fileSzInBytes} = await this._findOffsetCloseToDate(filePath, toDate)
-            
+            console.log({offset, fileSzInBytes})
             return await this._getPortfolio({filePath, offset, toDate, token, fileSzInBytes})
         } catch (error) {
             console.log(error)

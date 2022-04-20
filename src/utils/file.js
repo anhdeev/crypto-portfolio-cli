@@ -1,34 +1,6 @@
 const fs = require('fs'); 
 const path = require('path')
 const readline = require('readline');
-const repos = require('../repositories')
-const Promise = require('bluebird')
-const moment = require('moment')
-const csv = require('csv-parser')
-
-/* 
-const balance = {
-    BTC:0,
-    ETH:0,
-    XRP:0
-}
-exports.processAllCsvRows = (filePath) => {
-    const start = Date.now()
-    let a =0
-    const stream = fs.createReadStream(filePath)
-    stream.pipe(csv())
-    .on('data', function(data) {
-        balance[data.token] += Number(data.amount)
-    })
-    .on('end',function(){
-        const stop = Date.now()
-        console.log((stop-start)/1000, a)
-        console.log(balance)
-    }); 
-}
-
-this.processAllCsvRows('/Users/anhdv/Downloads/transactions.csv')
- */
 
 exports.processAllLines = async(filePath, handler, offset=0) => {
     // console.log({filePath})
@@ -57,13 +29,13 @@ exports.processAllPureLines = async(filePath, handler, offset, size) => {
 
     let remainder = ''
     let byteCnt = 0
+    let first = true
 
     for await (const buf of fileStream) {
         const lines = (remainder + buf).split(/\r?\n/g)
 
         remainder = lines.pop()
         let running = false
-        let first = true
 
         for (const line of lines) {
             byteCnt += (line.length +1)
@@ -85,7 +57,7 @@ exports.processAllPureLines = async(filePath, handler, offset, size) => {
     }
     //byteCnt+=remainder.length
     //console.log(remainder)
-    //console.log(`Processed stream ${byteCnt} - ${size} bytes in ${(Date.now()-start)/1000} seconds`)
+    console.log(`Processed stream ${byteCnt} - ${size} bytes in ${(Date.now()-start)/1000} seconds`)
 }
 
 exports.getFirstLineOffset = async(filePath, offset=0) => {

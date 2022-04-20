@@ -5,6 +5,7 @@ const Promise = require('bluebird')
 const Utils = require('../utils')
 const TokenAction = require('./token.action')
 const SettingAction = require('./setting.action')
+const {bignumber} = require('../utils');
 
 class CsvStreamAction {
     static CHUNK_SIZE = 128*1024 //128kb
@@ -36,7 +37,7 @@ class CsvStreamAction {
             firstDayBalances: this.firstDayBalances,
             lastDayBalances: this.lastDayBalances,
             firstDay: this.firstDay,
-            lastDay: this.lastDay
+            lastDay: this.currentDate
         }
     }
 
@@ -58,6 +59,7 @@ class CsvStreamAction {
         if(!this.firstDayBalances) { // first day might be incompleted due to split, dont save now
             this.firstDayBalances = this.lastDayBalances
             this.firstDay = this.lastDay
+            this.lastDayBalances={}
             return
         }
 
@@ -69,7 +71,9 @@ class CsvStreamAction {
                 })
             )
     
-            if (newBalances.length > 0) this.bulkBalances = [ ...this.bulkBalances, ...newBalances ]
+            if (newBalances.length > 0) {
+                this.bulkBalances = [ ...this.bulkBalances, ...newBalances ]
+            }
             this.lastDayBalances = {} // clear balance each day
         }
 
@@ -92,7 +96,7 @@ class CsvStreamAction {
         if(!amount || !token || !type || !timeInSeconds) return true // by pass wrong fomat row
 
         this.currentDate = Utils.common.convertSecondToDate(timeInSeconds) /// get date in number
-        //console.log({this.currentDate, todate:this.toDate})
+        //console.log({currentDate: this.currentDate, todate:this.toDate})
         if(this.currentDate > this.toDate) { // skip calculate for this row due to the target date not reached
             return true
         } else if(this.currentDate <= this.latestSyncedDate) { // stop the stream if meet the last synced date
@@ -109,12 +113,14 @@ class CsvStreamAction {
         if(type.startsWith('W')) updateAmount=-amount
         else if(type.startsWith('D')) updateAmount=amount
 
-        if(this.lastDayBalances.hasOwnProperty(token)) this.lastDayBalances[token] +=amount
-        else this.lastDayBalances[token] = amount
+        if(this.lastDayBalances.hasOwnProperty(token)) 
+            this.lastDayBalances[token] = bignumber.add(this.lastDayBalances[token],updateAmount)
+        else this.lastDayBalances[token] = updateAmount
         
         if(!this.onlyToken || this.onlyToken === token) {
-            if(this.balances.hasOwnProperty(token)) this.balances[token] +=amount
-            else this.balances[token] = amount
+            if(this.balances.hasOwnProperty(token))
+                this.balances[token] = bignumber.add(this.balances[token], updateAmount)
+            else this.balances[token] = updateAmount
         }
 
         return true
