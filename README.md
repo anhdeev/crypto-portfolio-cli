@@ -31,6 +31,8 @@ npm install -g .
 npm uninstall -g
 
 // sample run
+% cryptop path ~/Downloads/transactions.csv   <-- should passing absolute path
+OK
 % cryptop --readable true
 Target file: /Users/anhdv/Downloads/transactions.csv
 Processed in 0.143 seconds
